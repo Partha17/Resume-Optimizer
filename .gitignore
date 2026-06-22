@@ -1,0 +1,26 @@
+.env
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.venv/
+venv/
+.DS_Store
+
+# secrets (OAuth tokens, service-account keys)
+secrets/
+*.token.json
+gmail_token.json
+
+# user data — never commit real resumes or cached scraped data
+data/input/*
+!data/input/.gitkeep
+data/jobs_cache/*
+!data/jobs_cache/.gitkeep
+data/output/*
+!data/output/.gitkeep
+
+# notebook outputs (we strip before committing)
+*.nbconvert.ipynb
+
+# smoke test scratch
+tests/_smoke_out/

@@ -1,0 +1,50 @@
+Priya Iyer
+Bangalore, India | +91 98765 43210 | priya.iyer@example.com
+linkedin.com/in/priya-iyer-sample | github.com/priya-bio
+
+PROFESSIONAL SUMMARY
+Microbiologist with 5 years of experience in pharmaceutical QC labs supporting bulk drug and finished dosage testing. Strong background in aseptic technique, environmental monitoring, and method validation under GMP. Hands-on with bioassays, sterility testing, and microbial identification.
+
+WORK EXPERIENCE
+Senior Microbiologist - Anthem Biosciences, Bangalore    Jun 2022 - Present
+- Performed 200+ sterility tests per month on parenteral products following USP <71> and EP 2.6.1
+- Conducted environmental monitoring of ISO Class 5/7/8 cleanrooms; reduced excursions by 35% via shift retraining
+- Led microbial identification using VITEK 2 and 16S rRNA sequencing for OOS investigations
+- Authored 12 deviation reports and CAPA plans accepted by USFDA auditors in 2024
+- Validated 6 microbial limit test methods per ICH Q2(R1) guidelines
+
+Microbiologist - Biocon Biologics, Bangalore    Aug 2020 - May 2022
+- Executed bioburden and endotoxin (LAL) testing for 4 monoclonal antibody programs
+- Maintained microbial culture collection of 80+ strains used in growth promotion testing
+- Trained 4 junior analysts in aseptic technique and gowning qualification
+- Reduced media preparation cycle time by 20% through SOP simplification
+
+Microbiology Trainee - Cipla, Mumbai    Jul 2019 - Jul 2020
+- Performed water system monitoring for purified water and water for injection
+- Assisted in routine plate counts and identification of contaminants using API kits
+
+SKILLS
+Aseptic technique, Environmental monitoring, Sterility testing, Bioburden, Endotoxin LAL, USP, EP, GMP, GLP, ICH Q2, Method validation, VITEK 2, 16S rRNA, CAPA, OOS investigation, Cleanroom Class 100, Cleanroom Class 10000, Growth promotion, Microbial limits test, Media preparation
+
+EDUCATION
+M.Sc. Microbiology, Bangalore University    Jun 2017 - May 2019
+B.Sc. Biotechnology, Mount Carmel College Bangalore    Jun 2014 - May 2017
+
+CERTIFICATIONS
+- GMP for Pharmaceutical Manufacturing, NSF International, 2023
+- ISO 13485 Internal Auditor, BSI, 2022
+- Hands-on Microbial Identification, ASM, 2021
+
+PROJECTS
+Cleanroom contamination root-cause study
+- Investigated recurring Bacillus contamination in fill-finish suite using cluster analysis of EM data
+- Identified HVAC filter degradation as root cause; CAPA implementation eliminated repeat events
+
+PUBLICATIONS
+Iyer P. et al, Rapid microbial identification methods in pharma QC, Indian J Microbiology, 2022
+
+LANGUAGES
+English, Hindi, Tamil, Kannada
+
+AWARDS
+Spot Award for Quality Excellence, Anthem Biosciences, 2024
