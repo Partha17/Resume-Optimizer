@@ -16,7 +16,7 @@ from typing import Any
 from dotenv import load_dotenv
 from tenacity import (
     retry,
-    retry_if_exception_type,
+    retry_if_exception,
     stop_after_attempt,
     wait_exponential,
 )
@@ -51,17 +51,26 @@ def is_available() -> bool:
 
 
 class LLMError(RuntimeError):
-    pass
+    """Generic, retryable LLM failure (network, 5xx, transient)."""
+
+
+class LLMQuotaError(RuntimeError):
+    """Quota / rate-limit exceeded. NOT retried — retrying burns more quota."""
+
+
+def _is_retryable(exc: BaseException) -> bool:
+    """Retry transient LLM failures only. Quota errors short-circuit."""
+    return isinstance(exc, LLMError) and not isinstance(exc, LLMQuotaError)
 
 
 @retry(
     reraise=True,
     stop=stop_after_attempt(4),
     wait=wait_exponential(multiplier=2, min=2, max=30),
-    retry=retry_if_exception_type(LLMError),
+    retry=retry_if_exception(_is_retryable),
 )
 def _call(prompt: str, *, temperature: float = 0.3, response_mime_type: str | None = None) -> str:
-    """Single Gemini call with retry on transient failures."""
+    """Single Gemini call with retry on transient failures only."""
     if not _lazy_init():
         raise LLMError("Gemini not configured (set GEMINI_API_KEY)")
 
@@ -72,6 +81,10 @@ def _call(prompt: str, *, temperature: float = 0.3, response_mime_type: str | No
     try:
         resp = _model.generate_content(prompt, generation_config=cfg)  # type: ignore[union-attr]
     except Exception as e:  # network, 429, 5xx, etc.
+        msg = str(e)
+        # Classify so the retry decorator can short-circuit on quota errors.
+        if "429" in msg or "quota" in msg.lower() or "rate limit" in msg.lower():
+            raise LLMQuotaError(f"Gemini quota exhausted: {msg[:200]}") from e
         raise LLMError(f"Gemini request failed: {e}") from e
 
     # Gemini sometimes returns no text on safety filter trips

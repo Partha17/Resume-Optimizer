@@ -1,0 +1,25 @@
+# Dependencies & Build artifacts
+node_modules/
+.next/
+dist/
+build/
+out/
+
+# Version Control & IDEs
+.git/
+.vscode/
+.idea/
+
+# Media & Assets
+*.mp4
+*.png
+*.jpg
+*.jpeg
+*.svg
+*.gif
+
+# Large logs or lockfiles
+*.log
+package-lock.json
+yarn.lock
+pnpm-lock.yaml

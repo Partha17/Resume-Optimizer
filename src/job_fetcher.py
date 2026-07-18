@@ -166,6 +166,46 @@ def fetch_jobs(
     return all_jobs
 
 
+def from_file(path: str | Path, *, source_location: str = "fixture") -> list[dict[str, Any]]:
+    """Load a JSearch-shaped JSON fixture from disk.
+
+    Accepts either:
+      - the raw JSearch envelope `{"data": [...]}` returned by the live API
+      - a bare list `[...]` of job dicts
+
+    Each job gets `_source_location` tagged so the ranker treats it the same
+    way as a live fetch.
+    """
+    p = Path(path)
+    if not p.exists():
+        raise FileNotFoundError(f"Fixture not found: {p}")
+    payload = json.loads(p.read_text(encoding="utf-8"))
+    if isinstance(payload, dict):
+        jobs = payload.get("data") or []
+    elif isinstance(payload, list):
+        jobs = payload
+    else:
+        raise ValueError(f"Unsupported fixture shape in {p}: expected dict or list")
+    seen: set[str] = set()
+    out: list[dict[str, Any]] = []
+    for job in jobs:
+        if not isinstance(job, dict):
+            continue
+        jid = job.get("job_id") or job.get("job_apply_link") or hashlib.sha1(
+            (
+                (job.get("job_title") or "")
+                + (job.get("employer_name") or "")
+                + (job.get("job_city") or "")
+            ).encode()
+        ).hexdigest()
+        if jid in seen:
+            continue
+        seen.add(jid)
+        job.setdefault("_source_location", source_location)
+        out.append(job)
+    return out
+
+
 def cached_job_files() -> Iterable[Path]:
     """Iterate every cache file (useful for offline rebuilds)."""
     return CACHE_DIR.glob("*.json")

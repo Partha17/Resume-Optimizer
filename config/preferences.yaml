@@ -1,0 +1,143 @@
+# Resume Optimizer preferences for a Senior QC Microbiology job hunt in India.
+# Every key is overridable from the notebook; tweak this file rather than editing code.
+
+candidate:
+  # Used to address cover letters and screening answers in the candidate's voice.
+  first_name: ""           # filled in at runtime from the parsed resume if blank
+  current_ctc_lpa: null    # e.g. 18.5
+  expected_ctc_lpa: null   # e.g. 26.0
+  notice_period_days: 60
+  willing_to_relocate: true
+  earliest_join_date: ""   # e.g. "2026-09-01"; leaves blank if not set
+
+search:
+  # Primary role title used for the JD query string + the rewrite prompts.
+  role: "Senior Executive QC Microbiology"
+  # Alias titles searched in parallel — JSearch/JobSpy treat each as a separate query.
+  role_aliases:
+    - "Manager QC Microbiology"
+    - "AGM QC Microbiology"
+    - "Head QC Microbiology"
+    - "Senior Officer Quality Control Microbiology"
+    - "Lead Microbiologist Quality Control"
+  domain: "Pharmaceutical Quality Control / Microbiology"
+
+  # India pharma manufacturing hubs. Add/remove as needed.
+  locations:
+    - "Bangalore"
+    - "Hyderabad"
+    - "Mumbai"
+    - "Pune"
+    - "Ahmedabad"
+    - "Visakhapatnam"
+
+  employment_types: "FULLTIME"   # FULLTIME | PARTTIME | CONTRACTOR | INTERN
+  date_posted: "week"             # all | today | 3days | week | month
+  remote_only: false              # QC micro is wet-lab; remote is essentially nil
+  country: "in"
+
+  # Seed keywords merged with the auto-mined market keywords.
+  # The resume rewrite/tailor steps only inject these if the candidate actually has evidence.
+  domain_keywords_seed:
+    - "cGMP"
+    - "GLP"
+    - "sterility testing"
+    - "USP <71>"
+    - "USP <61>"
+    - "USP <62>"
+    - "endotoxin testing"
+    - "LAL"
+    - "bacterial endotoxin test"
+    - "microbial limit test"
+    - "environmental monitoring"
+    - "EM"
+    - "bioburden"
+    - "aseptic processing"
+    - "aseptic technique"
+    - "ISO 14644"
+    - "Grade A/B/C/D cleanroom"
+    - "deviation"
+    - "CAPA"
+    - "OOS"
+    - "OOT"
+    - "contamination control strategy"
+    - "GxP"
+    - "USFDA"
+    - "WHO-GMP"
+    - "EU GMP"
+    - "CDSCO"
+    - "MHRA"
+    - "TGA"
+    - "data integrity"
+    - "21 CFR Part 11"
+    - "LIMS"
+    - "media fill"
+    - "Growth Promotion Test"
+    - "GPT"
+    - "MALDI-TOF"
+    - "VITEK"
+    - "BacT/ALERT"
+    - "rapid microbial methods"
+    - "RMM"
+    - "biological indicator"
+    - "sterilization validation"
+    - "depyrogenation"
+
+ranking:
+  # Weights used by ranker.rank_jobs. Must sum to ~1.0.
+  fit_weight: 0.45
+  salary_weight: 0.35
+  recency_weight: 0.20
+
+filter:
+  # engagement_filter.py thresholds — drop ghost jobs aggressively.
+  max_age_days: 21
+  max_applicants: 200           # only enforced when the source surfaces this
+  validate_apply_link: true     # HEAD-check each apply URL; drop 4xx/5xx
+  recruiter_keywords:           # not dropped, just de-prioritised
+    - "consultancy"
+    - "consultants"
+    - "staffing"
+    - "placement"
+    - "manpower"
+    - "hr solutions"
+    - "talent acquisition"
+
+selection:
+  # How many tailored applications to prepare per run.
+  top_n_per_run: 25
+  salary_floor_lpa: 15
+  employer_blacklist: []        # case-insensitive substring match
+  tailor_when_coverage_below: 0.90
+
+apply_queue:
+  daily_apply_cap: 12
+  artifacts_root: "data/output/applications"   # one folder per job
+
+email_watcher:
+  poll_interval_minutes: 15
+  # Substring filters narrowed to applied employers at runtime; this is a safety belt.
+  inbox_query_extra: ""
+  history_file: "data/output/.gmail_history.json"
+
+sheet:
+  worksheet_name: "applications"
+  # Header order is enforced on first run; do not reorder manually.
+  columns:
+    - "job_id"
+    - "source"
+    - "company"
+    - "title"
+    - "location"
+    - "posted_days_ago"
+    - "salary_mid_lpa"
+    - "fit_score"
+    - "composite_score"
+    - "apply_link"
+    - "status"
+    - "queued_at"
+    - "applied_at"
+    - "last_response_at"
+    - "last_response_summary"
+    - "artifact_dir"
+    - "notes"

@@ -22,6 +22,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from . import llm
+from .llm import LLMQuotaError
 
 _keybert_model = None
 
@@ -176,6 +177,7 @@ def _classify(keywords: list[str], role: str, domain: str) -> dict[str, dict[str
     # batch in chunks of 60 to stay well under Gemini context+rate limits
     out: dict[str, dict[str, str]] = {}
     chunk = 60
+    quota_hit = False
     for i in range(0, len(keywords), chunk):
         batch = keywords[i : i + chunk]
         try:
@@ -186,6 +188,10 @@ def _classify(keywords: list[str], role: str, domain: str) -> dict[str, dict[str
                 keywords=str(batch),
             )
             arr = llm.complete_json(prompt)
+        except LLMQuotaError as e:
+            print(f"[keyword_extractor] quota hit on classify; falling back to naive canonical: {str(e)[:120]}")
+            quota_hit = True
+            arr = []
         except Exception:
             arr = []
         if isinstance(arr, list):
@@ -199,11 +205,13 @@ def _classify(keywords: list[str], role: str, domain: str) -> dict[str, dict[str
                     "category": (entry.get("category") or "hard_skill").lower().strip(),
                     "canonical": (entry.get("canonical") or k).lower().strip(),
                 }
+        if quota_hit:
+            break
         llm.throttle(0.5)
 
-    # ensure every input has a record
+    # ensure every input has a record — naive canonical for anything Gemini didn't classify
     for k in keywords:
-        out.setdefault(k, {"category": "hard_skill", "canonical": k})
+        out.setdefault(k, {"category": "hard_skill", "canonical": _naive_canonical(k)})
     return out
 
 

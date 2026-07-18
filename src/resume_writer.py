@@ -24,6 +24,7 @@ from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 from docx.shared import Pt, RGBColor
 
 from . import llm
+from .llm import LLMQuotaError
 
 DEFAULT_FONT = "Arial"
 BODY_SIZE = Pt(11)
@@ -73,6 +74,8 @@ def optimize_resume(
         print("[resume_writer] Gemini not configured; returning resume unchanged.")
         return out
 
+    quota_hit = False
+
     if out.get("summary") or out.get("experience"):
         try:
             summary_prompt = llm.load_prompt(
@@ -89,28 +92,36 @@ def optimize_resume(
             if new_summary:
                 out["summary"] = new_summary
             llm.throttle(0.6)
+        except LLMQuotaError as e:
+            print(f"[resume_writer] quota hit on summary rewrite; aborting LLM stage: {str(e)[:160]}")
+            quota_hit = True
         except Exception as e:
             print(f"[resume_writer] summary rewrite failed: {e}")
 
-    for i, exp in enumerate(out.get("experience", [])):
-        if not exp.get("bullets"):
-            continue
-        try:
-            prompt = llm.load_prompt(
-                "rewrite_bullets",
-                role=role,
-                domain=domain,
-                experience_json=json.dumps(exp, ensure_ascii=False)[:4000],
-                critical_keywords=json.dumps(critical_keywords[:25]),
-                recommended_keywords=json.dumps(recommended_keywords[:25]),
-            )
-            new_bullets = llm.complete_json(prompt, temperature=0.4)
-            if isinstance(new_bullets, list) and all(isinstance(b, str) for b in new_bullets):
-                out["experience"][i]["bullets"] = new_bullets
-            llm.throttle(0.6)
-        except Exception as e:
-            print(f"[resume_writer] bullet rewrite failed for entry {i}: {e}")
-            continue
+    if not quota_hit:
+        for i, exp in enumerate(out.get("experience", [])):
+            if not exp.get("bullets"):
+                continue
+            try:
+                prompt = llm.load_prompt(
+                    "rewrite_bullets",
+                    role=role,
+                    domain=domain,
+                    experience_json=json.dumps(exp, ensure_ascii=False)[:4000],
+                    critical_keywords=json.dumps(critical_keywords[:25]),
+                    recommended_keywords=json.dumps(recommended_keywords[:25]),
+                )
+                new_bullets = llm.complete_json(prompt, temperature=0.4)
+                if isinstance(new_bullets, list) and all(isinstance(b, str) for b in new_bullets):
+                    out["experience"][i]["bullets"] = new_bullets
+                llm.throttle(0.6)
+            except LLMQuotaError as e:
+                print(f"[resume_writer] quota hit on bullet rewrite (entry {i}); stopping: {str(e)[:160]}")
+                quota_hit = True
+                break
+            except Exception as e:
+                print(f"[resume_writer] bullet rewrite failed for entry {i}: {e}")
+                continue
 
     # reorder skills so critical keywords come first
     out["skills"] = _reorder_skills(out.get("skills", []), critical_keywords, recommended_keywords)
@@ -246,14 +257,20 @@ def _contact_line(doc: Document, contact: dict[str, str]) -> None:
         _set_font(run, size=Pt(10))
 
 
+def _flatten(text: str) -> str:
+    """Collapse PDF-extraction newlines and excess whitespace within a single bullet."""
+    return re.sub(r"\s+", " ", text or "").strip()
+
+
 def _bullets(doc: Document, items: list[str]) -> None:
     for item in items:
-        if not item or not item.strip():
+        flat = _flatten(item)
+        if not flat:
             continue
         p = doc.add_paragraph()
         p.paragraph_format.left_indent = Pt(14)
         p.paragraph_format.space_after = Pt(2)
-        run = p.add_run(f"- {item.strip()}")
+        run = p.add_run(f"- {flat}")
         _set_font(run)
 
 
